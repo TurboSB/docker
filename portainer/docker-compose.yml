@@ -1,0 +1,33 @@
+version: "3.3"
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - proxy
+    env_file: .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.portainer-https.entrypoints=https"
+      - "traefik.http.routers.portainer-https.tls=true"
+      - "traefik.http.routers.portainer-https.tls.certresolver=cert-1"
+      - "traefik.http.routers.portainer-https.rule=Host(`${PORTAINER_HOSTNAME}`) && PathPrefix(`/portainer`)"
+      - "traefik.http.middlewares.portainer-path.stripprefix.prefixes=/portainer"
+      - "traefik.http.middlewares.portainer-path.stripprefix.forceSlash=false"
+      - "traefik.http.services.portainer-loadbal.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer-https.middlewares=portainer-path"
+      - "traefik.http.routers.portainer-https.service=portainer-loadbal"
+
+volumes:
+  portainer_data:
+    external: true
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,23 @@
+http:
+  routers:
+    to-nextcloud:
+      rule: "Host(`{{env "HOSTNAME_CLOUD"}}`)"
+      middlewares:
+      - strict-transport
+      service: nextcloud
+      tls:
+        certresolver: cert-1
+
+  middlewares:
+    strict-transport:
+      headers:
+        forceSTSHeader: true
+        stsPreload: true
+        stsIncludeSubdomains: true
+        stsSeconds: 16070400
+
+  services:
+    nextcloud:
+      loadBalancer:
+        servers:
+        - url: {{env "CLOUD_IP"}}
