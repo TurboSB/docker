@@ -35,5 +35,5 @@ certificatesResolvers:
         provider: 'googledomains'
         delayBeforeCheck: 20
         resolvers:
-          - 8.8.8.8
-          - 8.8.4.4
+          - "8.8.8.8:53"
+          - "8.8.4.4:53"
