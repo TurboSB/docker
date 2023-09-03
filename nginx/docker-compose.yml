@@ -14,12 +14,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
-      - "traefik.http.routers.nginx-https.entrypoints=https"
       - "traefik.http.routers.nginx-https.rule=Host(`${NGINX_HOSTNAME}`)"
       - "traefik.http.routers.nginx-https.tls=true"
       - "traefik.http.routers.nginx-https.tls.certresolver=cert-1"
-      - "traefik.http.routers.nginx-https.service=nginx-loadbal"
-      - "traefik.http.services.nginx-loadbal.loadbalancer.server.port=8081"
 
 networks:
   proxy:

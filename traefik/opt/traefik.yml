@@ -1,6 +1,6 @@
 api:
   dashboard: true
-  insecure: true
+  insecure: false
 
 entryPoints:
   http:
@@ -37,3 +37,9 @@ certificatesResolvers:
         resolvers:
           - "8.8.8.8:53"
           - "8.8.4.4:53"
+
+  cert-2:
+    acme:
+      email: admin@tsb.one
+      storage: /letsencrypt/acme-1.json
+      tlsChallenge: {}

@@ -6,7 +6,7 @@ http:
       - strict-transport
       service: nextcloud
       tls:
-        certresolver: cert-1
+        certresolver: cert-2
 
   middlewares:
     strict-transport:

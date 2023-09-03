@@ -18,13 +18,13 @@ services:
       - "./opt:/etc/traefik:ro"
     restart: always
     env_file: .env
-#    labels:
-#      - "traefik.enable=true"
-#      - "traefik.docker.network=proxy"
-#      - "traefik.http.routers.to-dashboard.entrypoints=https"
-#      - "traefik.http.routers.to-dashboard.tls=true"
-#      - "traefik.http.routers.to-dashboard.rule=Host(`${HOSTNAME_FQDN}`) && PathPrefix(`/api`, `/dashboard`)"
-#      - "traefik.http.routers.to-dashboard.service=api@internal"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.to-dashboard.entrypoints=https"
+      - "traefik.http.routers.to-dashboard.tls=true"
+      - "traefik.http.routers.to-dashboard.rule=Host(`${HOSTNAME_FQDN}`) && PathPrefix(`/api`, `/dashboard`)"
+      - "traefik.http.routers.to-dashboard.service=api@internal"
 
 networks:
   proxy:
