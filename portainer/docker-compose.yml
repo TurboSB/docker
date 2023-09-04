@@ -7,7 +7,7 @@ services:
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
+      - /media/bamshare/dockerStorage/portainer:/data
     networks:
       - proxy
     env_file: .env
@@ -23,10 +23,6 @@ services:
       - "traefik.http.services.portainer-loadbal.loadbalancer.server.port=9000"
       - "traefik.http.routers.portainer-https.middlewares=portainer-path"
       - "traefik.http.routers.portainer-https.service=portainer-loadbal"
-
-volumes:
-  portainer_data:
-    external: true
 
 networks:
   proxy:
