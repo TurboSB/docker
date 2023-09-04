@@ -1,24 +1,24 @@
 api:
-  dashboard: true
-  insecure: false
+  dashboard: true # enable the dashboard
+  insecure: false # only allow conenction to the dashboard via https (may want to enable insecure when first starting)
 
 entryPoints:
   http:
-    address: ":80"
+    address: ":80" # assign port 80 to entrypoint called http
   https:
-    address: ":443"
+    address: ":443" # assign port 443 to entrypoint called https
 
 providers:
   docker:
-    watch: true
-    endpoint: "unix:///var/run/docker.sock"
-    exposedByDefault: false
-    network: proxy
+    watch: true # listen to docker for changes to containers for auto config
+    endpoint: "unix:///var/run/docker.sock" # location of docker.sock (bound in docker-compose.yml)
+    exposedByDefault: false # only expose containers that have traefik.enable=true
+    network: proxy # default to using the docker network called proxy to connect to containers
   file:
-    directory: /etc/traefik/dynamic
-    watch: false
+    directory: /etc/traefik/dynamic # directory to look for dynamic configuration files for external services
+    watch: true # watch directory for file changes
 
-http:
+http: # i dont actually think this part is being used, just copied from somewhere and hasn't been deleted
   middlewares:
     https-redirect:
       redirectscheme:
@@ -26,13 +26,13 @@ http:
         permanent: true
 
 certificatesResolvers:
-  cert-1:
+  cert-1: #resolver name
     acme:
-      #caServer: https://acme-staging-v02.api.letsencrypt.org/directory
-      email: admin@tsb.one
-      storage: /letsencrypt/acme-1.json
-      dnsChallenge:
-        provider: 'googledomains'
+      #caServer: https://acme-staging-v02.api.letsencrypt.org/directory #uncomment to use the LE staging server if you are worried about rate limiting
+      email: admin@tsb.one #email to use for cert registration (all resolver emails must be the same)
+      storage: /letsencrypt/acme-1.json #file to store certs (bound in docker-compose.yml)
+      dnsChallenge: # use dns challenge for this resolver for an internal domain that doesn't point to your public ip
+        provider: 'googledomains' # see https://doc.traefik.io/traefik/https/acme/#providers for details on configuring for your dns provider
         delayBeforeCheck: 20
         resolvers:
           - "8.8.8.8:53"
@@ -40,6 +40,6 @@ certificatesResolvers:
 
   cert-2:
     acme:
-      email: admin@tsb.one
-      storage: /letsencrypt/acme-1.json
-      tlsChallenge: {}
+      email: admin@tsb.one # same email as above
+      storage: /letsencrypt/acme-1.json #file to store certs (bound in docker-compose.yml)
+      tlsChallenge: {} # use a tls challenge for the rest of your domains that will be exposed publicly

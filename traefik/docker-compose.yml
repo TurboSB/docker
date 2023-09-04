@@ -1,31 +1,43 @@
 version: "3.3"
 
 services:
-
   traefik:
+    # what image/version to pull
     image: "traefik:v2.10"
     container_name: "traefik"
+    
+    # docker network to use for this container
     networks:
       - proxy
+
+    # ports to forward in from the host to the container
     ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
+      - "80:80"     #HTTP
+      - "443:443"   #HTTPS
+      - "8080:8080" #Traefik Webui (if api:insecure=false)
+
+    # non-ephemeral storage to save/access data
     volumes:
-      - "/etc/localtime:/etc/localtime:ro"
-      - "./letsencrypt.${HOSTNAME}:/letsencrypt"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./opt:/etc/traefik:ro"
+      - "/etc/localtime:/etc/localtime:ro"              # copy timezone from host
+      - "./letsencrypt.${HOSTNAME}:/letsencrypt"        # bind folder to store your certs
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"  # connect to docker so it do autoconfig stuff
+      - "./opt:/etc/traefik:ro"                         # bind folder to store static & dynamic configs
+    
+    # tell docker to always restart the container on reboot or crash
     restart: always
+    
+    # file to load environment variables from
     env_file: .env
+
+    # labels to tell traefik to handle this container, aka how to proxy traffic to the dashboard securely
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
-      - "traefik.http.routers.to-dashboard.entrypoints=https"
-      - "traefik.http.routers.to-dashboard.tls=true"
-      - "traefik.http.routers.to-dashboard.rule=Host(`${HOSTNAME_FQDN}`) && PathPrefix(`/api`, `/dashboard`)"
-      - "traefik.http.routers.to-dashboard.service=api@internal"
+      - "traefik.enable=true"                 # You can tell Traefik to consider (or not) the service by setting traefik.enable to true or false.
+      - "traefik.docker.network=proxy"        # tell it to use the docker network called proxy 
+      - "traefik.http.routers.to-dashboard.entrypoints=https" #first mention creates a router called to-dashboard and tell it to use the entrypoint called https (defined in traefik.yml)
+      - "traefik.http.routers.to-dashboard.tls=true" #use tls 
+      - "traefik.http.routers.to-dashboard.rule=Host(`${HOSTNAME_FQDN}`) && PathPrefix(`/api`, `/dashboard`)" #tell traefik what url to listen for to assign to this router
+      - "traefik.http.routers.to-dashboard.service=api@internal" # connect the router to the dashboard service
 
 networks:
   proxy:
-    external: true
+    external: true #dont create a new network, connect to the existing docker network called proxy

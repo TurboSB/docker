@@ -1,23 +1,23 @@
 http:
   routers:
-    to-nextcloud:
-      rule: "Host(`{{env "HOSTNAME_CLOUD"}}`)"
+    to-nextcloud: # define a router called to-nextcloud
+      rule: "Host(`{{env "HOSTNAME_CLOUD"}}`)" # look for domains that match the envvar HOSTNAME_CLOUD defined in the .env file
       middlewares:
-      - strict-transport
-      service: nextcloud
+      - strict-transport # use the middleware called strict-transport (defined below)
+      service: nextcloud # connect to the service called nextclous (defined below)
       tls:
-        certresolver: cert-2
+        certresolver: cert-2 # use resolver named cert-2 as this is a publicly exposed domain
 
   middlewares:
-    strict-transport:
-      headers:
+    strict-transport: # define a middleware called strict-transport to use HSTS
+      headers: # use the headers middleware
         forceSTSHeader: true
         stsPreload: true
         stsIncludeSubdomains: true
         stsSeconds: 16070400
 
   services:
-    nextcloud:
-      loadBalancer:
+    nextcloud: # define a service called nextcloud
+      loadBalancer: # use the loadbalancer service to proxy traffic
         servers:
-        - url: {{env "CLOUD_IP"}}
+        - url: {{env "CLOUD_IP"}} # url to route traffic to, in this case an envvar that contains the ip of my nextcloud proxmox container
