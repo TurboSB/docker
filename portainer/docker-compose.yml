@@ -2,28 +2,41 @@ version: "3.3"
 
 services:
   portainer:
+    # what image/version to pull
     image: portainer/portainer-ce:latest
+    
+    # arguments
     command: -H unix:///var/run/docker.sock
+
+    # tell docker to always restart the container on reboot or crash
     restart: always
+
+    # non-ephemeral storage to save/access data
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /media/bamshare/dockerStorage/portainer:/data
+      - /var/run/docker.sock:/var/run/docker.sock # connect (read/write) to docker so it can manage docker
+      - /media/bamshare/dockerStorage/portainer:/data # bind folder to store data
+    
+    # docker network to use for this container
     networks:
       - proxy
+    
+    # file to load environment variables from
     env_file: .env
+    
+    # labels to tell traefik to handle this container
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
-      - "traefik.http.routers.portainer-https.entrypoints=https"
-      - "traefik.http.routers.portainer-https.tls=true"
-      - "traefik.http.routers.portainer-https.tls.certresolver=cert-1"
-      - "traefik.http.routers.portainer-https.rule=Host(`${PORTAINER_HOSTNAME}`) && PathPrefix(`/portainer`)"
-      - "traefik.http.middlewares.portainer-path.stripprefix.prefixes=/portainer"
-      - "traefik.http.middlewares.portainer-path.stripprefix.forceSlash=false"
-      - "traefik.http.services.portainer-loadbal.loadbalancer.server.port=9000"
-      - "traefik.http.routers.portainer-https.middlewares=portainer-path"
-      - "traefik.http.routers.portainer-https.service=portainer-loadbal"
+      - "traefik.enable=true"                                                     # You can tell Traefik to consider (or not) the service by setting traefik.enable to true or false.
+      - "traefik.docker.network=proxy"                                            # tell it to use the docker network called proxy
+      - "traefik.http.routers.portainer-https.entrypoints=https"                  # first mention creates a router called portainer-https and tells it to use the entrypoint called https (defined in traefik.yml)
+      - "traefik.http.routers.portainer-https.tls=true"                           # use tls
+      - "traefik.http.routers.portainer-https.tls.certresolver=cert-1"            # use cert resolver named cert-1 (defined in traefik.yml)
+      - "traefik.http.routers.portainer-https.rule=Host(`${PORTAINER_HOSTNAME}`) && PathPrefix(`/portainer`)" # tell traefik what url to listen for to assign to this router
+      - "traefik.http.middlewares.portainer-path.stripprefix.prefixes=/portainer" # define a middleware called portainer-path using the stripprefix middleware, this will strip out the prefix /portainer from the url
+      - "traefik.http.middlewares.portainer-path.stripprefix.forceSlash=false"    # see https://doc.traefik.io/traefik/v2.10/middlewares/http/stripprefix/#forceslash
+      - "traefik.http.services.portainer-loadbal.loadbalancer.server.port=9000"   # create a loadbalancer called portainer-loadbal and point it at the portainer frontend port
+      - "traefik.http.routers.portainer-https.middlewares=portainer-path"         # tell portainer-https to use the portainer-path middleware
+      - "traefik.http.routers.portainer-https.service=portainer-loadbal"          # tell portainer-https to use the portainer-loadbal service
 
 networks:
   proxy:
-    external: true
+    external: true # dont create a new network, connect to the existing docker network called proxy

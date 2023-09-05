@@ -2,22 +2,35 @@ version: "3.3"
 
 services:
   nginx:
+    # what image/version to pull
     image: nginx:latest
+
+    # tell docker to always restart the container on reboot or crash
     restart: always
+    
+    # ports to forward in from the host to the container
     ports:
-      - "8081:80"
+      - "8081:80" # nginx expects port 80 traffic but that is used by traefik, so instead use 8081
+    
+    # non-ephemeral storage to save/access data
     volumes:
-      - ./src:/usr/share/nginx/html
+      - ./src:/usr/share/nginx/html # bind folder to store webpage to serve
+    
+    # docker network to use for this container
     networks:
       - proxy
+    
+    # file to load environment variables from
     env_file: .env
+    
+    # labels to tell traefik to handle this container
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
-      - "traefik.http.routers.nginx-https.rule=Host(`${NGINX_HOSTNAME}`)"
-      - "traefik.http.routers.nginx-https.tls=true"
-      - "traefik.http.routers.nginx-https.tls.certresolver=cert-1"
+      - "traefik.enable=true"                                             # You can tell Traefik to consider (or not) the service by setting traefik.enable to true or false.
+      - "traefik.docker.network=proxy"                                    # tell it to use the docker network called proxy
+      - "traefik.http.routers.nginx-https.rule=Host(`${NGINX_HOSTNAME}`)" # tell traefik what url to listen for to assign to this router
+      - "traefik.http.routers.nginx-https.tls=true"                       # use tls
+      - "traefik.http.routers.nginx-https.tls.certresolver=cert-1"        # use cert resolver cert-1
 
 networks:
   proxy:
-    external: true
+    external: true  # dont create a new network, connect to the existing docker network called proxy
