@@ -29,10 +29,10 @@ certificatesResolvers:
   cert-1: #resolver name
     acme:
       #caServer: https://acme-staging-v02.api.letsencrypt.org/directory #uncomment to use the LE staging server if you are worried about rate limiting
-      email: admin@tsb.one #email to use for cert registration (all resolver emails must be the same)
+      email: admin@example.com #email to use for cert registration (all resolver emails must be the same)
       storage: /letsencrypt/acme-1.json #file to store certs (bound in docker-compose.yml)
       dnsChallenge: # use dns challenge for this resolver for an internal domain that doesn't point to your public ip
-        provider: 'googledomains' # see https://doc.traefik.io/traefik/https/acme/#providers for details on configuring for your dns provider
+        provider: 'porkbun' # see https://doc.traefik.io/traefik/https/acme/#providers for details on configuring for your dns provider
         delayBeforeCheck: 20
         resolvers:
           - "8.8.8.8:53"
@@ -40,6 +40,6 @@ certificatesResolvers:
 
   cert-2:
     acme:
-      email: admin@tsb.one # same email as above
+      email: admin@example.com # same email as above
       storage: /letsencrypt/acme-1.json #file to store certs (bound in docker-compose.yml)
       tlsChallenge: {} # use a tls challenge for the rest of your domains that will be exposed publicly
