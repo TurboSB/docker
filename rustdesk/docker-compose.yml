@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  rustdesk-hbbs:
+    image: rustdesk/rustdesk-server-pro:latest
+    command: hbbs -r ${RUSTDESK_HOSTNAME}:21117
+    volumes:
+      - /media/bamshare/dockerStorage/rustdesk:/root
+    networks:
+      - proxy
+    #network_mode: "host"
+    ports:
+      - "21115:21115"
+      - "21116:21116"
+      - "21116:21116/udp"
+      - "21118:21118"
+    depends_on:
+      - rustdesk-hbbr
+    restart: unless-stopped
+    env_file: .env
+
+    #labels:
+    #  - "traefik.enable=true"
+    #  - "traefik.docker.network=proxy"
+    #  - "traefik.http.routers.rustdesk-https.entrypoints=https"
+    #  - "traefik.http.routers.rustdesk-https.tls=true"
+    #  - "traefik.http.routers.rustdesk-https.tls.certresolver=cert-1"
+    #  - "traefik.http.routers.rustdesk-https.rule=Host(`${RUSTDESK_HOSTNAME}`)"
+    #  - "traefik.http.middlewares.rustdesk-whitelist.ipwhitelist.sourcerange=192.168.1.0/24"
+    #  - "traefik.http.services.rustdesk-loadbal.loadbalancer.server.port=21114"
+    #  - "traefik.http.routers.rustdesk-https.middlewares=rustdesk-whitelist"
+    #  - "traefik.http.routers.rustdesk-https.service=rustdesk-loadbal"
+
+  rustdesk-hbbr:
+    image: rustdesk/rustdesk-server-pro:latest
+    command: hbbr
+    volumes:
+      - /media/bamshare/dockerStorage/rustdesk:/root
+    networks:
+      - proxy
+    #network_mode: "host"
+    ports:
+      - "21117:21117"
+      - "21119:21119"
+    restart: unless-stopped
+
+networks:
+  proxy:
+    external: true
