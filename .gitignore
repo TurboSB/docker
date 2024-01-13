@@ -1,2 +1,4 @@
 .env
 acme*.json
+photoprism/database/
+photoprism/storage/
